@@ -3,7 +3,11 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
 using Unity.AI.Navigation; // for OrderBy, Contains in DungeonPathfinder (if it's in the same file or a partial class)
-
+public class DungeonGenerationResult
+{
+    public RectInt? StartRoom { get; set; }
+    public List<Vector3> RoomCentersExcludingStart { get; set; }
+}
 public class DungeonGenerator : MonoBehaviour
 {
     public GameObject RoomPrefab, CorridorPrefab;
@@ -13,7 +17,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public Transform dungeonParent;
 
-    public List<RectInt> Init()
+    public DungeonGenerationResult Init()
     {
         Rooms.Clear();
         Corridors.Clear();
@@ -22,20 +26,14 @@ public class DungeonGenerator : MonoBehaviour
         {
             List<GameObject> childrenToDestroy = new List<GameObject>();
             foreach (Transform child in dungeonParent)
-            {
                 childrenToDestroy.Add(child.gameObject);
-            }
 
             foreach (GameObject child in childrenToDestroy)
             {
                 if (Application.isPlaying)
-                {
                     Destroy(child);
-                }
                 else
-                {
                     DestroyImmediate(child);
-                }
             }
         }
 
@@ -66,12 +64,25 @@ public class DungeonGenerator : MonoBehaviour
 
         root.CreateRooms();
         CollectRooms(root);
-
         ConnectRooms(root);
-
         SpawnRoomsAndCorridors();
 
-        return Rooms;
+        // 시작 방을 찾는다
+        RectInt? startRoom = FindEdgeStartRoom();
+
+        // 시작 방을 제외한 중앙 좌표 리스트 생성
+        List<Vector3> roomCentersExcludingStart = Rooms
+            .Where(r => !startRoom.HasValue || !r.Equals(startRoom.Value))
+            .Select(r =>
+            {
+                return new Vector3(r.x, 0, r.y);
+            }).ToList();
+
+        return new DungeonGenerationResult
+        {
+            StartRoom = startRoom,
+            RoomCentersExcludingStart = roomCentersExcludingStart
+        };
     }
 
     void CollectRooms(Leaf node)
@@ -186,46 +197,49 @@ public class DungeonGenerator : MonoBehaviour
         surface.BuildNavMesh();
     }
 
-    public RectInt? GetStartRoom()
+    public RectInt? FindEdgeStartRoom()
     {
-        if (Rooms.Count == 0) return null;
-
-        RectInt startRoom = Rooms[0];
-        foreach (var room in Rooms)
-        {
-            if (room.y > startRoom.y)
-            {
-                startRoom = room;
-            }
-            else if (room.y == startRoom.y && room.x < startRoom.x)
-            {
-                startRoom = room;
-            }
-        }
-        return startRoom;
-    }
-
-    public RectInt? GetEndRoom(RectInt startRoom)
-    {
-        if (Rooms.Count <= 1) return null;
-
-        RectInt endRoom = Rooms[0];
-        float maxDistance = 0f;
-        Vector2 startCenter = GetCenter(startRoom);
+        Dictionary<RectInt, int> connectedCorridorCount = new Dictionary<RectInt, int>();
 
         foreach (var room in Rooms)
         {
-            if (room.Equals(startRoom)) continue;
+            Vector2Int center = GetCenter(room);
+            int count = 0;
 
-            Vector2 currentCenter = GetCenter(room);
-            float distance = Vector2.Distance(startCenter, currentCenter);
-
-            if (distance > maxDistance)
+            // 4방향 탐색
+            Vector2Int[] directions = new Vector2Int[]
             {
-                maxDistance = distance;
-                endRoom = room;
+            Vector2Int.up,
+            Vector2Int.down,
+            Vector2Int.left,
+            Vector2Int.right
+            };
+
+            foreach (var dir in directions)
+            {
+                Vector2Int neighbor = center + dir;
+                if (Corridors.Contains(neighbor))
+                {
+                    count++;
+                }
             }
+
+            connectedCorridorCount[room] = count;
         }
-        return endRoom;
+
+        // 복도 연결이 1개뿐인 방들만 필터링
+        var oneCorridorRooms = connectedCorridorCount
+            .Where(kv => kv.Value == 1)
+            .Select(kv => kv.Key);
+
+        if (!oneCorridorRooms.Any()) return null;
+
+        // 외곽 방: 중심 좌표가 가장 멀리 있는 방 (0,0 기준)
+        RectInt furthestRoom = oneCorridorRooms
+            .OrderByDescending(room => GetCenter(room).sqrMagnitude)
+            .First();
+
+        return furthestRoom;
     }
+
 }

@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public DungeonManager Dungeon;
+    public MoveInDungeon inDungeon; // 추후 Player 로 변경
     public GameObject PlayerPrefab;
 
 
@@ -22,6 +23,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Dungeon.GenerateDungeon();
+    
     }
 }

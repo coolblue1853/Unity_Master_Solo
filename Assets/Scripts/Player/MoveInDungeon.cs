@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -6,49 +5,36 @@ using UnityEngine.AI;
 public class MoveInDungeon : MonoBehaviour
 {
     private DungeonManager dungeonManager;
+    private Vector3 _startPoint;
+    private List<Vector3> _sortedRooms;
     private NavMeshAgent _agent;
-    private const float BasicHight = 1.387f;
-    private RectInt _currentDestinationRoom;
     private Queue<RectInt> _pathQueue;
     private bool _isMoving = false;
     private bool _isFirstRoom;
+    private int _currentRoomIndex = 0;
 
     private void Start()
     {
         _agent = this.GetComponent<NavMeshAgent>();
+        dungeonManager = GameManager.Instance.Dungeon;
+    }
+    public void SetDungeon(Vector3 startPoint , List<Vector3> sortedRooms)
+    {
+        _startPoint = startPoint;
+        _sortedRooms = sortedRooms;
         _agent.enabled = false;
         _isFirstRoom = false;
-        dungeonManager = GameManager.Instance.Dungeon;
-        _pathQueue = new Queue<RectInt>(dungeonManager._pathToEnd); // 원본 손상 방지
 
         Invoke("StartPlayerMove", 0.1f);
     }
 
+
     public void StartPlayerMove()
     {
-        if (_pathQueue.Count == 0) return;
-
-        RectInt startRoomRect = _pathQueue.Dequeue();
-        transform.position = new Vector3(startRoomRect.x, BasicHight, startRoomRect.y);
+        transform.position = _startPoint;
         _agent.enabled = true;
         _isFirstRoom = true;
         MoveToNextDestination();
-    }
-
-    private void MoveToNextDestination()
-    {
-        if (_pathQueue.Count > 0)
-        {
-            _currentDestinationRoom = _pathQueue.Dequeue();
-            Vector3 targetPosition = new Vector3(_currentDestinationRoom.x, BasicHight, _currentDestinationRoom.y);
-            _agent.SetDestination(targetPosition);
-            _isMoving = true;
-        }
-        else
-        {
-            _agent.ResetPath();
-            _isMoving = false;
-        }
     }
 
     private void Update()
@@ -58,7 +44,22 @@ public class MoveInDungeon : MonoBehaviour
         {
             MoveToNextDestination();
         }
+    }
 
+    private void MoveToNextDestination()
+    {
+        if (_currentRoomIndex < _sortedRooms.Count)
+        {
+            Vector3 targetPosition = _sortedRooms[_currentRoomIndex];
+            _agent.SetDestination(targetPosition);
+            _isMoving = true;
+            _currentRoomIndex++;
+        }
+        else
+        {
+            _agent.ResetPath();
+            _isMoving = false;
+        }
     }
 
 
