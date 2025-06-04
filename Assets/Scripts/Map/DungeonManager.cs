@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DungeonManager : MonoBehaviour
-{    private const float BasicHight = 1.387f;
+{   
     private GameManager gameManager;
     private DungeonPathfinder pathfinder;
     [SerializeField] DungeonGenerator generator;
+    [SerializeField] DungeonSetEnemy setEnemy;
     [SerializeField] private DungeonGenerationResult _rooms;
     [SerializeField] private List<Vector3> _sortedRooms;
 
@@ -29,9 +30,11 @@ public class DungeonManager : MonoBehaviour
     {
         _rooms = generator.Init();
         RectInt startRoomRect = _rooms.StartRoom.Value;
-        var startPositon = new Vector3(startRoomRect.x, 0, startRoomRect.y);
+        var list = _rooms.Rooms;
+        var startPositon = new Vector3(startRoomRect.x, Constants.BasicHight, startRoomRect.y);
         _sortedRooms = pathfinder.SortByNavMeshDistance(startPositon, _rooms.RoomCentersExcludingStart);
-        gameManager.inDungeon.SetDungeon(startPositon,_sortedRooms);
+        setEnemy.SpawnEnemies(list);
+        gameManager.inDungeon.SetDungeon(startPositon,_sortedRooms, _rooms.Rooms);
     }
 
 }

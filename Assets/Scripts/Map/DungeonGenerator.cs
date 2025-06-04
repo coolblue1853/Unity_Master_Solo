@@ -7,6 +7,7 @@ public class DungeonGenerationResult
 {
     public RectInt? StartRoom { get; set; }
     public List<Vector3> RoomCentersExcludingStart { get; set; }
+    public List<RectInt> Rooms { get; set; }
 }
 public class DungeonGenerator : MonoBehaviour
 {
@@ -81,7 +82,10 @@ public class DungeonGenerator : MonoBehaviour
         return new DungeonGenerationResult
         {
             StartRoom = startRoom,
-            RoomCentersExcludingStart = roomCentersExcludingStart
+            RoomCentersExcludingStart = roomCentersExcludingStart,
+            Rooms = Rooms
+            .Where(r => !startRoom.HasValue || !r.Equals(startRoom.Value))
+            .ToList()
         };
     }
 
