@@ -20,6 +20,15 @@ public abstract class BaseController : MonoBehaviour
         set
         {
             _state = value;
+            switch (_state)
+            {
+                case Define.State.Move:
+                    UpdateMove();
+                    break;
+                case Define.State.Chase:
+                    UpdateChase();
+                    break;
+            }
         }
     }
 
@@ -34,18 +43,14 @@ public abstract class BaseController : MonoBehaviour
             case Define.State.Die:
                 UpdateDie();
                 break;
-            case Define.State.Move:
-                UpdateMove();
-                break;
+
             case Define.State.Idle:
                 UpdateIdle();
                 break;
             case Define.State.Attack:
                 UpdateAttack();
                 break;
-            case Define.State.Chase:
-                UpdateChase();
-                break;
+
 
         }
     }

@@ -28,9 +28,6 @@ public class MoveInDungeon : MonoBehaviour
         _rectRooms = rectRooms;
         _agent.enabled = false;
         _isFirstRoom = false;
-
-        //Invoke("StartPlayerMove", 0.1f);
-    //    StartCoroutine(CheckPlayerInRoomRoutine());
     }
 
 
@@ -43,7 +40,6 @@ public class MoveInDungeon : MonoBehaviour
             _isFirstRoom = true;
         }
         MoveToNextDestination();
-
     }
 
     private void Update()
