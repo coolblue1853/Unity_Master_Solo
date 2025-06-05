@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Dungeon: {fileID: 1479175398}
   inDungeon: {fileID: 130693110497071107}
+  player: {fileID: 130693110497071114}
   PlayerPrefab: {fileID: 130693110497071108}
 --- !u!4 &74240549
 Transform:
@@ -573,8 +574,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5659114301728930666, guid: 013f81094edb954478b37fcf554a281d,
     type: 3}
-  minEnemiesPerRoom: 1
-  maxEnemiesPerRoom: 1
+  minEnemiesPerRoom: 2
+  maxEnemiesPerRoom: 3
 --- !u!1 &1479175397
 GameObject:
   m_ObjectHideFlags: 0
@@ -640,7 +641,7 @@ PrefabInstance:
     - target: {fileID: 3941092763075737205, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16.56341
+      value: 59.67
       objectReference: {fileID: 0}
     - target: {fileID: 3941092763075737205, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
         type: 3}
@@ -650,7 +651,7 @@ PrefabInstance:
     - target: {fileID: 3941092763075737205, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 26.853064
+      value: 7.87
       objectReference: {fileID: 0}
     - target: {fileID: 3941092763075737205, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
         type: 3}
@@ -687,26 +688,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8306629939494675696, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
-        type: 3}
-      propertyPath: m_Speed
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 8306629939494675696, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
-        type: 3}
-      propertyPath: m_Acceleration
-      value: 999
-      objectReference: {fileID: 0}
-    - target: {fileID: 8306629939494675696, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
-        type: 3}
-      propertyPath: m_AngularSpeed
-      value: 999
-      objectReference: {fileID: 0}
-    - target: {fileID: 8306629939494675696, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
-        type: 3}
-      propertyPath: m_ObstacleAvoidanceType
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -730,6 +711,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 130693110497071106}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &130693110497071114 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7498211876511805977, guid: 79a5ed1f8ba9f9649ac12e2c203cbecf,
+    type: 3}
+  m_PrefabInstance: {fileID: 130693110497071106}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130693110497071108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d88bde0963d21b1458ef5681028c7cbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

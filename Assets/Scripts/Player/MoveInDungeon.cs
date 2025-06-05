@@ -6,12 +6,11 @@ using UnityEngine.AI;
 
 public class MoveInDungeon : MonoBehaviour
 {
-    private DungeonManager dungeonManager;
+    public PlayerController playerController;
     private Vector3 _startPoint;
     private List<Vector3> _sortedRooms;
     private List<RectInt> _rectRooms;
     private NavMeshAgent _agent;
-    private Queue<RectInt> _pathQueue;
     private bool _isMoving = false;
     private bool _isFirstRoom;
     private int _currentRoomIndex = 0;
@@ -21,7 +20,6 @@ public class MoveInDungeon : MonoBehaviour
     private void Start()
     {
         _agent = this.GetComponent<NavMeshAgent>();
-        dungeonManager = GameManager.Instance.Dungeon;
     }
     public void SetDungeon(Vector3 startPoint , List<Vector3> sortedRooms, List<RectInt> rectRooms )
     {
@@ -31,29 +29,33 @@ public class MoveInDungeon : MonoBehaviour
         _agent.enabled = false;
         _isFirstRoom = false;
 
-        Invoke("StartPlayerMove", 0.1f);
-        StartCoroutine(CheckPlayerInRoomRoutine());
+        //Invoke("StartPlayerMove", 0.1f);
+    //    StartCoroutine(CheckPlayerInRoomRoutine());
     }
 
 
     public void StartPlayerMove()
     {
-        transform.position = _startPoint;
-        _agent.enabled = true;
-        _isFirstRoom = true;
+        if(_currentRoomIndex == 0)
+        {
+            transform.position = _startPoint;
+            _agent.enabled = true;
+            _isFirstRoom = true;
+        }
         MoveToNextDestination();
+
     }
 
     private void Update()
     {
+    
         if (_isFirstRoom && _isMoving && !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance
             && (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f))
         {
-            MoveToNextDestination();
-            
+            // MoveToNextDestination();
+            playerController.State = Define.State.Chase;
         }
-
-   
+       
     }
 
     private void MoveToNextDestination()
@@ -77,20 +79,28 @@ public class MoveInDungeon : MonoBehaviour
         {
             bool inRoom = IsPlayerInRoom(transform.position);
             IsInRoom = inRoom;
+
+            if (inRoom)
+            {
+                playerController.State = Define.State.Chase;
+                _agent.ResetPath();
+                _isMoving = false;
+                StopCoroutine(CheckPlayerInRoomRoutine());
+            }
             yield return new WaitForSeconds(0.05f); 
         }
     }
     public bool IsPlayerInRoom(Vector3 playerPosition)
     {
-        // 플레이어 위치를 2D 좌표로 변환 (x, z)
+
         Vector2Int playerPos2D = new Vector2Int(Mathf.FloorToInt(playerPosition.x), Mathf.FloorToInt(playerPosition.z));
 
-        // Rooms 리스트 순회하며 포함 여부 검사
+
         foreach (var room in _rectRooms)
         {
             if (room.Contains(playerPos2D))
-                return true; // 방 안에 있음
+                return true;
         }
-        return false; // 어떤 방에도 없음 (복도거나 빈 공간)
+        return false;
     }
 }
