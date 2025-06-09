@@ -43,15 +43,12 @@ public abstract class BaseController : MonoBehaviour
             case Define.State.Die:
                 UpdateDie();
                 break;
-
             case Define.State.Idle:
                 UpdateIdle();
                 break;
             case Define.State.Attack:
                 UpdateAttack();
                 break;
-
-
         }
     }
     public abstract void Init();

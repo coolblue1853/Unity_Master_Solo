@@ -14,11 +14,12 @@ public class PlayerController : BaseController
     bool isChasing = false;
     public float detectionRadius = 1f;
     public LayerMask enemyLayer; // Enemy 레이어만 탐지
-    [SerializeField] private List<GameObject> detectedEnemies = new List<GameObject>();
+     private List<GameObject> detectedEnemies = new List<GameObject>();
     public GameObject chaseTarget;
     public GameObject attackTarget;
     private DungeonSetEnemy dungeonEnemy;
     private int chaseIndex = 0;
+    private Define.State beforeState;
     public override void Init()
     {
         moveInDungeon = GetComponent<MoveInDungeon>();
@@ -42,7 +43,6 @@ public class PlayerController : BaseController
 
     protected override void UpdateChase()
     {
-        // 1. 유효한 적 리스트가 비었을 경우 재탐색
         if (detectedEnemies == null || detectedEnemies.Count == 0)
         {
             detectedEnemies = dungeonEnemy.GetEnemiesInRoom(transform.position);
@@ -55,29 +55,20 @@ public class PlayerController : BaseController
                 return;
             }
         }
-
-        // 2. 유효하지 않은 인덱스일 경우 종료
         if (chaseIndex >= detectedEnemies.Count)
         {
             State = Define.State.Move;
             return;
         }
-
-        // 3. 현재 타겟이 null이면 다음으로 넘어감
         if (detectedEnemies[chaseIndex] == null)
         {
             chaseIndex++;
             return;
         }
-
-        // 4. 타겟 지정 및 추적
         chaseTarget = detectedEnemies[chaseIndex];
         _agent.SetDestination(chaseTarget.transform.position);
-
-        // 5. 도착 확인
         if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
         {
-            // 거리에 따라 도착 판정
             chaseIndex++;
         }
     }
@@ -94,7 +85,6 @@ public class PlayerController : BaseController
                     count++;
             }
         }
-        Debug.Log(count);
         return count;
     }
 
@@ -102,10 +92,10 @@ public class PlayerController : BaseController
     {
         Destroy(attackTarget);
 
-        // 리스트에서 제거
-        detectedEnemies.Remove(attackTarget);
+        detectedEnemies?.Remove(attackTarget);
 
-        // 다음 상태 결정
+        State = beforeState;
+        /*
         if (CheckNull() > 0)
         {
             State = Define.State.Chase;
@@ -114,6 +104,7 @@ public class PlayerController : BaseController
         {
             State = Define.State.Move;
         }
+        */
     }
 
     bool IsEnemyNearby()
@@ -133,8 +124,9 @@ public class PlayerController : BaseController
     protected override void Update()
     {
         base.Update();
-        if (IsEnemyNearby() && State == Define.State.Chase)
+        if (IsEnemyNearby())
         {
+            beforeState = State;
             State = Define.State.Attack;
         }
     }
